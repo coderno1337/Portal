@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Portal - CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        h1 {
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem !important;
+        }
+        .card {
+            background-color: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .card-title {
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        a:hover {
+            color: #fff;
+            background-color: rgba(255,255,255,0.1);
+            text-decoration: none;
+        }
+        .nav-links {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>ERP Portal - CRM</h1>
+        <div class="nav-links">
+            <a href="index.html">Finance</a> | 
+            <a href="sales.html">Sales</a> | 
+            <a href="crm.html">CRM</a> | 
+            <a href="production.html">Production</a> | 
+            <a href="supply_chain.html">Supply Chain</a>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Customer Acquisition Cost</h5>
+                        <canvas id="cacChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Customer Satisfaction (CSAT)</h5>
+                        <canvas id="csatChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Demographics</h5>
+                        <canvas id="demoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Churn Rate</h5>
+                        <canvas id="churnChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Support Tickets</h5>
+                        <canvas id="ticketChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        // Premium Dark Theme Defaults for Chart.js
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
+        Chart.defaults.scale.grid.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.maintainAspectRatio = true;
+        Chart.defaults.aspectRatio = 1.5;
+
+var ctx1 = document.getElementById('cacChart').getContext('2d');
+        var cacChart = new Chart(ctx1, { type: 'bar', data: { labels: [], datasets: [{label: 'CAC', data: [], backgroundColor: 'rgba(59, 130, 246, 0.8)', borderRadius: 4}] }, options: { scales: { y: { beginAtZero: true } } } });
+
+        var ctx2 = document.getElementById('csatChart').getContext('2d');
+        var csatChart = new Chart(ctx2, { type: 'line', data: { labels: [], datasets: [{label: 'CSAT', data: [], borderColor: 'rgba(16, 185, 129, 1)', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, fill: true, tension: 0.4}] }, options: { scales: { y: { beginAtZero: true } } } });
+
+        var ctx3 = document.getElementById('demoChart').getContext('2d');
+        var demoChart = new Chart(ctx3, { type: 'polarArea', data: { labels: ['18-24', '25-34', '35-44', '45+'], datasets: [{data: [], backgroundColor: ['rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(16, 185, 129, 0.8)'], borderWidth: 0}] }, options: { scales: { r: { ticks: { display: false } } } } });
+
+        var ctx4 = document.getElementById('churnChart').getContext('2d');
+        var churnChart = new Chart(ctx4, { type: 'radar', data: { labels: [], datasets: [{label: 'Churn Rate %', data: [], backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 1)', pointBackgroundColor: 'rgba(239, 68, 68, 1)'}] }, options: { elements: { line: { borderWidth: 2 } }, scales: { r: { ticks: { display: false } } } } });
+
+        var ctx5 = document.getElementById('ticketChart').getContext('2d');
+        var ticketChart = new Chart(ctx5, { type: 'doughnut', data: { labels: ['Billing', 'Technical', 'General'], datasets: [{data: [], backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(245, 158, 11, 0.8)'], borderWidth: 0, cutout: '70%'}] } });
+
+        function fetchDataAndUpdateChart() {
+            const csvData = `Month,CAC,CSAT,Demo_18_24,Demo_25_34,Demo_35_44,Demo_45_plus,Churn_Rate,Ticket_Billing,Ticket_Technical,Ticket_General
+Jan,29.108188494272277,70.78315034031247,464,765,416,333,1.3113298737151373,83,116,130
+Feb,41.648530522800186,90.17063546624658,307,379,372,197,3.5809703154579284,95,171,91
+Mar,31.66608475751787,84.09765572507283,267,582,593,240,1.5405211413734214,184,106,148
+Apr,17.434543081278342,70.42292129118779,445,390,214,347,3.1178274905319143,59,257,113
+May,44.61942105900953,85.28560662978815,350,646,306,184,1.8067940579374913,177,274,66
+Jun,47.86503699084814,95.47774348577,479,761,434,306,1.392296229159924,87,260,82
+Jul,48.74189834367726,89.32550400686975,349,382,365,383,4.816782343717842,136,199,110
+Aug,20.166353459115296,84.76695617161563,448,481,423,254,3.221975545825002,125,168,58
+Sep,17.983795696557287,74.61536229689875,226,438,423,311,1.179924543585285,164,263,139
+Oct,16.225104128839824,74.70104731214391,155,405,298,318,1.9820404304929027,191,215,31
+Nov,35.016934675508004,94.30339512345994,449,330,259,155,1.5988226294121786,54,211,125
+Dec,26.17649330226929,97.00200570551448,467,702,268,174,2.9530172072909893,106,192,149`;
+            Papa.parse(csvData, {
+                header: true,
+                complete: function(results) {
+                    var data = results.data.filter(row => row.Month);
+                    var labels = data.map(row => row.Month);
+                    
+                    cacChart.data.labels = labels;
+                    cacChart.data.datasets[0].data = data.map(row => row.CAC);
+                    cacChart.update();
+
+                    csatChart.data.labels = labels;
+                    csatChart.data.datasets[0].data = data.map(row => row.CSAT);
+                    csatChart.update();
+
+                    var lastRow = data[data.length - 1];
+                    demoChart.data.datasets[0].data = [lastRow.Demo_18_24, lastRow.Demo_25_34, lastRow.Demo_35_44, lastRow.Demo_45_plus];
+                    demoChart.update();
+
+                    churnChart.data.labels = labels;
+                    churnChart.data.datasets[0].data = data.map(row => row.Churn_Rate);
+                    churnChart.update();
+
+                    ticketChart.data.datasets[0].data = [lastRow.Ticket_Billing, lastRow.Ticket_Technical, lastRow.Ticket_General];
+                    ticketChart.update();
+                },
+                error: function(error) { console.error('Error fetching data:', error); }
+            });
+        }
+        fetchDataAndUpdateChart();
+    </script>
+</body>
+</html>
